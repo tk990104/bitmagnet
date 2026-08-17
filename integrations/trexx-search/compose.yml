@@ -1,0 +1,12 @@
+services:
+  trexx-search:
+    build:
+      context: ../..
+      dockerfile: integrations/trexx-search/Dockerfile
+    env_file:
+      - .env
+    ports:
+      - "8787:8787"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped

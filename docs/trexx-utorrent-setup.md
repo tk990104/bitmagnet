@@ -9,7 +9,7 @@ This document describes a clean architecture for using **bitmagnet** and **Prowl
 ```text
                     ┌────────────────────────────┐
                     │        T-Rexx Search       │
-                    │   (future dashboard/UI)    │
+                    │  local companion service  │
                     └──────────────┬─────────────┘
                                    │
                     ┌──────────────┴─────────────┐
@@ -83,7 +83,7 @@ This keeps discovery and downloading separate and avoids storing µTorrent crede
 
 ## Phase 5 — T-Rexx Command integration
 
-A future T-Rexx Command module can normalize results from both sources into one interface.
+The first T-Rexx Command search module now lives in [`integrations/trexx-search`](../integrations/trexx-search/README.md). It is a lightweight Go companion service with an embedded browser interface. It searches Prowlarr and bitmagnet concurrently, normalizes results, merges matching v1 info hashes, and keeps the final µTorrent handoff as an explicit click.
 
 Suggested fields:
 
@@ -110,17 +110,16 @@ Suggested UI actions:
 
 The **Open in µTorrent** button should simply navigate to the magnet URI. On Windows, the registered magnet handler will launch µTorrent.
 
-## Suggested API layer
+## Implemented API layer
 
-For a future dashboard, keep a small local service between the UI and the search backends:
+The local service exposes:
 
 ```text
 GET /api/search?q=<query>
-GET /api/search/prowlarr?q=<query>
-GET /api/search/bitmagnet?q=<query>
+GET /api/health
 ```
 
-The service can merge and normalize results, remove duplicates using the torrent info hash, then sort by seeders, age, or size.
+The service merges and normalizes results, removes duplicates using the torrent info hash, and supports sorting by title, source, seeders, age, or size in the UI. If one source is temporarily unavailable, the other source can still return partial results with a visible warning.
 
 Do **not** automatically start downloads by default. Require the user to click **Open in µTorrent** so the final action stays explicit.
 
@@ -130,9 +129,10 @@ Do **not** automatically start downloads by default. Require the user to click *
 2. Bring up bitmagnet locally.
 3. Bring up Prowlarr locally.
 4. Verify searches independently.
-5. Add a lightweight local aggregator API.
-6. Add the T-Rexx Command search UI.
-7. Add deduplication and ranking.
+5. ~~Add a lightweight local aggregator API.~~ Complete in `integrations/trexx-search`.
+6. ~~Add the T-Rexx Command search UI.~~ Complete with the embedded responsive UI.
+7. ~~Add deduplication and ranking.~~ Complete for BitTorrent v1 info hashes, with seeder-first ranking.
+8. Add the configured Prowlarr API key and run the live backend smoke test.
 
 ## NotebookLM note structure
 

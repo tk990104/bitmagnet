@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="dark" />
+    <title>T-Rexx Torrent Search</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main>
+      <header class="hero">
+        <div>
+          <p class="eyebrow">T-Rexx Command</p>
+          <h1>Torrent Search</h1>
+          <p class="subtitle">One search across Prowlarr and bitmagnet. You choose what opens in µTorrent.</p>
+        </div>
+        <div class="source-key" aria-label="Search sources">
+          <span><i class="dot dot-prowlarr"></i>Prowlarr</span>
+          <span><i class="dot dot-bitmagnet"></i>bitmagnet</span>
+        </div>
+      </header>
+
+      <section class="search-panel" aria-label="Torrent search">
+        <form id="search-form">
+          <label for="query">Search for legally shareable content</label>
+          <div class="search-row">
+            <input id="query" name="q" type="search" maxlength="200" placeholder="Try “Ubuntu 26.04”" autocomplete="off" required />
+            <button id="search-button" type="submit">Search both</button>
+          </div>
+        </form>
+        <p id="status" class="status" aria-live="polite">Ready.</p>
+        <div id="warnings" class="warnings" aria-live="polite" hidden></div>
+      </section>
+
+      <section id="results-panel" class="results-panel" hidden>
+        <div class="results-heading">
+          <div>
+            <p class="eyebrow">Unified results</p>
+            <h2 id="result-count">0 matches</h2>
+          </div>
+          <p id="dedupe-count" class="dedupe"></p>
+        </div>
+        <div class="table-shell">
+          <table>
+            <thead>
+              <tr>
+                <th><button class="sort" data-sort="title">Title <span></span></button></th>
+                <th><button class="sort" data-sort="source">Source <span></span></button></th>
+                <th class="numeric"><button class="sort" data-sort="size">Size <span></span></button></th>
+                <th class="numeric"><button class="sort active" data-sort="seeders">Seeders <span>↓</span></button></th>
+                <th><button class="sort" data-sort="age">Age <span></span></button></th>
+                <th><span class="sr-only">Action</span></th>
+              </tr>
+            </thead>
+            <tbody id="results"></tbody>
+          </table>
+          <div id="empty" class="empty" hidden>No matches found. Try a broader search.</div>
+        </div>
+      </section>
+
+      <footer>
+        Use this tool only for material you are authorized to download or share. Opening a magnet link is always an explicit action.
+      </footer>
+    </main>
+    <script src="/app.js" defer></script>
+  </body>
+</html>

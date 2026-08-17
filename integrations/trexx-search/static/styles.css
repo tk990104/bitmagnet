@@ -1,0 +1,126 @@
+:root {
+  color-scheme: dark;
+  --bg: #090d12;
+  --panel: #111820;
+  --panel-2: #151f29;
+  --line: #253341;
+  --text: #eef4f8;
+  --muted: #8fa1af;
+  --lime: #b8f54a;
+  --lime-dark: #1e310f;
+  --cyan: #55d9ee;
+  --amber: #ffbf69;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 10% 0%, rgba(85, 217, 238, 0.09), transparent 30rem),
+    radial-gradient(circle at 90% 4%, rgba(184, 245, 74, 0.08), transparent 30rem),
+    var(--bg);
+  color: var(--text);
+  font: 15px/1.5 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+main { width: min(1380px, calc(100% - 40px)); margin: 0 auto; padding: 56px 0 30px; }
+
+.hero, .results-heading { display: flex; align-items: end; justify-content: space-between; gap: 30px; }
+.hero { margin-bottom: 32px; }
+h1, h2, p { margin-top: 0; }
+h1 { margin-bottom: 10px; font-size: clamp(2.5rem, 6vw, 5rem); line-height: 0.95; letter-spacing: -0.06em; }
+h2 { margin-bottom: 0; font-size: 1.7rem; letter-spacing: -0.03em; }
+.eyebrow { margin-bottom: 9px; color: var(--lime); font-size: 0.75rem; font-weight: 800; letter-spacing: 0.18em; text-transform: uppercase; }
+.subtitle { max-width: 650px; margin-bottom: 0; color: var(--muted); font-size: 1.05rem; }
+.source-key { display: flex; gap: 18px; color: var(--muted); font-size: 0.82rem; }
+.source-key span { display: flex; align-items: center; gap: 7px; }
+.dot { width: 8px; height: 8px; border-radius: 50%; }
+.dot-prowlarr { background: var(--cyan); box-shadow: 0 0 12px var(--cyan); }
+.dot-bitmagnet { background: var(--lime); box-shadow: 0 0 12px var(--lime); }
+
+.search-panel, .results-panel {
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: linear-gradient(145deg, rgba(21, 31, 41, 0.97), rgba(13, 19, 25, 0.97));
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.28);
+}
+.search-panel { padding: 22px; }
+label { display: block; margin-bottom: 9px; color: var(--muted); font-size: 0.8rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; }
+.search-row { display: flex; gap: 10px; }
+input {
+  min-width: 0;
+  flex: 1;
+  border: 1px solid #344758;
+  border-radius: 11px;
+  outline: none;
+  background: #080d12;
+  color: var(--text);
+  padding: 15px 17px;
+  font: inherit;
+  font-size: 1rem;
+}
+input:focus { border-color: var(--lime); box-shadow: 0 0 0 3px rgba(184, 245, 74, 0.12); }
+button, .open-button { font: inherit; font-weight: 750; }
+#search-button {
+  border: 0;
+  border-radius: 11px;
+  background: var(--lime);
+  color: #10180a;
+  padding: 0 24px;
+  cursor: pointer;
+}
+#search-button:hover { filter: brightness(1.06); }
+#search-button:disabled { cursor: wait; opacity: 0.65; }
+.status { margin: 12px 2px 0; color: var(--muted); font-size: 0.85rem; }
+.warnings { margin-top: 14px; border-left: 3px solid var(--amber); border-radius: 4px; background: rgba(255, 191, 105, 0.08); padding: 10px 14px; color: #f6d8ad; }
+.warnings p, .warnings strong { margin: 0; }
+.warnings p { font-size: 0.85rem; }
+
+.results-panel { margin-top: 22px; overflow: hidden; }
+.results-heading { padding: 20px 22px; border-bottom: 1px solid var(--line); }
+.results-heading .eyebrow { margin-bottom: 4px; }
+.dedupe { margin: 0; color: var(--muted); font-size: 0.82rem; }
+.table-shell { overflow-x: auto; }
+table { width: 100%; min-width: 960px; border-collapse: collapse; }
+th { background: #0d141b; color: var(--muted); text-align: left; font-size: 0.74rem; letter-spacing: 0.04em; text-transform: uppercase; }
+th, td { padding: 15px 16px; border-bottom: 1px solid rgba(37, 51, 65, 0.74); vertical-align: middle; }
+tbody tr:last-child td { border-bottom: 0; }
+tbody tr:hover { background: rgba(184, 245, 74, 0.025); }
+.sort { border: 0; background: transparent; color: inherit; padding: 0; cursor: pointer; text-transform: inherit; letter-spacing: inherit; }
+.sort.active { color: var(--text); }
+.sort span { color: var(--lime); }
+.numeric { text-align: right; }
+.title-cell { max-width: 480px; }
+.title-cell strong { display: block; font-size: 0.95rem; line-height: 1.35; }
+.hash { display: block; max-width: 260px; margin-top: 4px; overflow: hidden; color: #637887; font: 0.68rem ui-monospace, SFMono-Regular, Consolas, monospace; text-overflow: ellipsis; white-space: nowrap; }
+.sources { min-width: 150px; }
+.badge { display: table; margin: 3px 0; border: 1px solid; border-radius: 999px; padding: 3px 8px; font-size: 0.71rem; white-space: nowrap; }
+.badge.prowlarr { border-color: rgba(85, 217, 238, 0.35); background: rgba(85, 217, 238, 0.08); color: #9be9f5; }
+.badge.bitmagnet { border-color: rgba(184, 245, 74, 0.35); background: rgba(184, 245, 74, 0.08); color: #d5fb8d; }
+.mono { color: #c5d0d8; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.seeders { color: var(--lime); font-weight: 800; font-variant-numeric: tabular-nums; }
+.age { color: var(--muted); white-space: nowrap; }
+.action { text-align: right; white-space: nowrap; }
+.open-button { display: inline-block; border: 1px solid rgba(184, 245, 74, 0.45); border-radius: 9px; background: var(--lime-dark); color: #d9ff99; padding: 8px 11px; text-decoration: none; }
+.open-button:hover { border-color: var(--lime); background: #294513; }
+.unavailable { color: #657580; font-size: 0.8rem; }
+.empty { padding: 48px 20px; color: var(--muted); text-align: center; }
+footer { max-width: 720px; margin: 24px auto 0; color: #637481; font-size: 0.78rem; text-align: center; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+
+@media (max-width: 700px) {
+  main { width: min(100% - 24px, 1380px); padding-top: 30px; }
+  .hero { align-items: start; flex-direction: column; }
+  .search-row { flex-direction: column; }
+  #search-button { padding: 14px 18px; }
+  .results-heading { align-items: start; flex-direction: column; gap: 8px; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .search-panel, .results-panel { animation: enter 420ms ease-out both; }
+  .results-panel { animation-delay: 70ms; }
+  @keyframes enter { from { opacity: 0; transform: translateY(8px); } }
+}
