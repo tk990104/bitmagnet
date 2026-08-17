@@ -6,6 +6,7 @@ import (
 	"encoding/base32"
 	"encoding/hex"
 	"encoding/json"
+	"encoding/xml"
 	"errors"
 	"fmt"
 	"io"
@@ -29,6 +30,7 @@ const (
 	maxResponseBytes   = 4 << 20
 	maxQueryLength     = 200
 	defaultHTTPTimeout = 15 * time.Second
+	maxConfigBytes     = 64 << 10
 )
 
 //go:embed static/*
@@ -97,6 +99,17 @@ func main() {
 }
 
 func loadConfig() (config, error) {
+	prowlarrAPIKey := strings.TrimSpace(os.Getenv("PROWLARR_API_KEY"))
+	if prowlarrAPIKey == "" {
+		if path := strings.TrimSpace(os.Getenv("PROWLARR_CONFIG_FILE")); path != "" {
+			var err error
+			prowlarrAPIKey, err = readProwlarrAPIKey(path)
+			if err != nil {
+				return config{}, err
+			}
+		}
+	}
+
 	limit := defaultLimit
 	if raw := strings.TrimSpace(os.Getenv("TREXX_RESULT_LIMIT")); raw != "" {
 		parsed, err := strconv.Atoi(raw)
@@ -118,11 +131,31 @@ func loadConfig() (config, error) {
 	return config{
 		Addr:           envOrDefault("TREXX_ADDR", defaultAddr),
 		ProwlarrURL:    envOrDefault("PROWLARR_URL", defaultProwlarr),
-		ProwlarrAPIKey: strings.TrimSpace(os.Getenv("PROWLARR_API_KEY")),
+		ProwlarrAPIKey: prowlarrAPIKey,
 		BitmagnetURL:   envOrDefault("BITMAGNET_URL", defaultBitmagnet),
 		ResultLimit:    limit,
 		HTTPTimeout:    timeout,
 	}, nil
+}
+
+func readProwlarrAPIKey(path string) (string, error) {
+	file, err := os.Open(path)
+	if err != nil {
+		return "", fmt.Errorf("read Prowlarr config: %w", err)
+	}
+	defer file.Close()
+
+	var document struct {
+		APIKey string `xml:"ApiKey"`
+	}
+	if err := xml.NewDecoder(io.LimitReader(file, maxConfigBytes)).Decode(&document); err != nil {
+		return "", fmt.Errorf("parse Prowlarr config: %w", err)
+	}
+	key := strings.TrimSpace(document.APIKey)
+	if key == "" {
+		return "", errors.New("Prowlarr config does not contain an API key")
+	}
+	return key, nil
 }
 
 func envOrDefault(key, fallback string) string {

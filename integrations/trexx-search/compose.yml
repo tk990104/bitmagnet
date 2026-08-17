@@ -1,12 +1,84 @@
 services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: trexx-bitmagnet-postgres
+    environment:
+      POSTGRES_DB: bitmagnet
+      POSTGRES_PASSWORD: postgres
+      PGUSER: postgres
+    volumes:
+      - ../../data/trexx/postgres:/var/lib/postgresql/data
+    shm_size: 1gb
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      start_period: 20s
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  bitmagnet:
+    image: ghcr.io/bitmagnet-io/bitmagnet:latest
+    container_name: trexx-bitmagnet
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_PASSWORD: postgres
+      TMDB_ENABLED: "false"
+    command:
+      - worker
+      - run
+      - --keys=http_server
+      - --keys=queue_server
+      - --keys=dht_crawler
+    volumes:
+      - ../../data/trexx/bitmagnet-config:/root/.config/bitmagnet
+    ports:
+      - "127.0.0.1:3333:3333"
+      - "3334:3334/tcp"
+      - "3334:3334/udp"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+  prowlarr:
+    image: lscr.io/linuxserver/prowlarr:latest
+    container_name: trexx-prowlarr
+    environment:
+      PUID: "1000"
+      PGID: "1000"
+      TZ: America/New_York
+    volumes:
+      - ../../data/trexx/prowlarr:/config
+    ports:
+      - "127.0.0.1:9696:9696"
+    healthcheck:
+      test: ["CMD-SHELL", "curl --fail --silent http://127.0.0.1:9696/ping >/dev/null"]
+      start_period: 30s
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
   trexx-search:
     build:
       context: ../..
       dockerfile: integrations/trexx-search/Dockerfile
-    env_file:
-      - .env
+    container_name: trexx-search
+    environment:
+      PROWLARR_API_KEY: "${PROWLARR_API_KEY:-}"
+      PROWLARR_CONFIG_FILE: /run/prowlarr/config.xml
+      PROWLARR_URL: "${PROWLARR_URL:-http://prowlarr:9696}"
+      BITMAGNET_URL: "${BITMAGNET_URL:-http://bitmagnet:3333}"
+      TREXX_RESULT_LIMIT: "${TREXX_RESULT_LIMIT:-100}"
+      TREXX_HTTP_TIMEOUT: "${TREXX_HTTP_TIMEOUT:-15s}"
+    volumes:
+      - ../../data/trexx/prowlarr:/run/prowlarr:ro
     ports:
-      - "8787:8787"
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+      - "127.0.0.1:8787:8787"
+    depends_on:
+      bitmagnet:
+        condition: service_started
+      prowlarr:
+        condition: service_healthy
     restart: unless-stopped

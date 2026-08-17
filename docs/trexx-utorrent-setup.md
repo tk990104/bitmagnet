@@ -46,20 +46,29 @@ The current Prowlarr source tree in this fork does not include a native `UTorren
 
 If Windows opens µTorrent when you click the magnet link, no helper application is required.
 
-## Phase 2 — Run bitmagnet
+## Phase 2 — Run the complete local stack
 
-The repository includes a full Docker Compose example. For an initial test, use the project's documented minimal Compose configuration rather than enabling Grafana/Prometheus immediately.
+The integration includes a focused Docker Compose stack with bitmagnet, PostgreSQL, Prowlarr, and T-Rexx Search. From the repository root:
 
-Typical local endpoints:
+```powershell
+docker compose -f integrations/trexx-search/compose.yml up --build -d
+```
+
+Local endpoints:
 
 - bitmagnet web UI: `http://localhost:3333`
-- bitmagnet API: exposed through the bitmagnet HTTP service
+- Prowlarr web UI: `http://localhost:9696`
+- T-Rexx Search: `http://localhost:8787`
 
-The included full `docker-compose.yml` also supports routing bitmagnet through a Gluetun VPN container and exposes ports `3333` and `3334`.
+The web interfaces listen only on localhost. bitmagnet's DHT port uses `3334` TCP/UDP. Persistent application data is stored under the ignored `data/trexx` directory.
 
-## Phase 3 — Run Prowlarr
+T-Rexx reads Prowlarr's generated API key from its read-only local configuration. Manual API-key copying is only needed when Prowlarr runs outside this Compose stack.
 
-Install or run Prowlarr separately and use it for centralized indexer management and manual searching.
+The repository's full root `docker-compose.yml` demonstrates routing bitmagnet through Gluetun. bitmagnet recommends VPN routing for longer-running DHT crawling; adapt that example before extended use if this is part of your network plan.
+
+## Phase 3 — Configure Prowlarr
+
+Open Prowlarr and add only indexers you are authorized to use. Until an indexer is configured, Prowlarr correctly returns an empty search result.
 
 Recommended local layout:
 
@@ -132,7 +141,7 @@ Do **not** automatically start downloads by default. Require the user to click *
 5. ~~Add a lightweight local aggregator API.~~ Complete in `integrations/trexx-search`.
 6. ~~Add the T-Rexx Command search UI.~~ Complete with the embedded responsive UI.
 7. ~~Add deduplication and ranking.~~ Complete for BitTorrent v1 info hashes, with seeder-first ranking.
-8. Add the configured Prowlarr API key and run the live backend smoke test.
+8. ~~Connect the generated Prowlarr API key and run the live backend smoke test.~~ Complete through read-only config discovery; a live `ubuntu` query reached both backends successfully.
 
 ## NotebookLM note structure
 

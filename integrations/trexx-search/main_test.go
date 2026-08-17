@@ -6,6 +6,8 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 	"time"
@@ -14,6 +16,20 @@ import (
 const testHash = "0123456789abcdef0123456789abcdef01234567"
 
 func intPointer(value int) *int { return &value }
+
+func TestReadProwlarrAPIKey(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "config.xml")
+	if err := os.WriteFile(path, []byte("<Config><ApiKey>local-test-key</ApiKey></Config>"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	key, err := readProwlarrAPIKey(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if key != "local-test-key" {
+		t.Fatalf("key = %q, want local-test-key", key)
+	}
+}
 
 func TestNormalizeInfoHash(t *testing.T) {
 	t.Parallel()
