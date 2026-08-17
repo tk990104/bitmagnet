@@ -1,6 +1,6 @@
 # T-Rexx unified torrent search
 
-T-Rexx Search is a small companion service that searches Prowlarr and bitmagnet in parallel, normalizes their results, and merges duplicates when the same BitTorrent v1 info hash appears in both sources. Its browser UI shows title, source, size, seeders, and age, with sortable columns and an explicit **Open in µTorrent** magnet action.
+T-Rexx Search is a small companion service that searches Prowlarr and bitmagnet in parallel, normalizes their results, and merges duplicates when the same BitTorrent v1 info hash appears in both sources. Its browser UI shows title, source, size, seeders, and age, with sortable columns and an explicit **Open in torrent client** magnet action.
 
 The service is isolated from bitmagnet's core code. It uses only the Go standard library and embeds its static interface in one executable.
 
@@ -9,7 +9,7 @@ The service is isolated from bitmagnet's core code. It uses only the Go standard
 ## Prerequisites
 
 - Docker Desktop with the WSL 2 engine
-- µTorrent Classic registered as the Windows handler for `MAGNET` links
+- qBittorrent (or another trusted client) registered as the Windows handler for `MAGNET` links
 - Go 1.23+ only when using the native Go command instead of Docker
 
 ## Run with Go
@@ -71,7 +71,7 @@ GET /api/search?q=<query>
 
 Searches run concurrently. If one backend is unavailable, results from the other are returned with a warning. If both fail, the API returns HTTP 502. Results with a recognized 40-character hexadecimal or 32-character base32 v1 info hash are deduplicated; source labels and the highest observed seeder count are retained.
 
-Prowlarr results that do not expose either a magnet URI or an info hash remain visible, but their µTorrent action is disabled because a safe magnet URI cannot be constructed.
+Prowlarr results that do not expose either a magnet URI or an info hash remain visible, but their client action is disabled because a safe magnet URI cannot be constructed.
 
 ## Validate
 
@@ -80,4 +80,5 @@ go test ./integrations/trexx-search
 go vet ./integrations/trexx-search
 ```
 
-For a live smoke test, search for a legal/public torrent such as a Linux distribution and confirm that **Open in µTorrent** launches the registered Windows magnet handler.
+For a live smoke test, search for a legal/public torrent such as a Linux distribution and confirm that **Open in torrent client** launches the registered Windows magnet handler.
+

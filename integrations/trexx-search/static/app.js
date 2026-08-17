@@ -154,8 +154,8 @@ function createResultRow(result) {
     const open = document.createElement("a");
     open.className = "open-button";
     open.href = result.magnetUri;
-    open.textContent = "Open in µTorrent";
-    open.setAttribute("aria-label", `Open ${result.title || "torrent"} in µTorrent`);
+    open.textContent = "Open in torrent client";
+    open.setAttribute("aria-label", `Open ${result.title || "torrent"} in the registered torrent client`);
     actionCell.append(open);
   } else {
     const unavailable = document.createElement("span");
@@ -201,3 +201,4 @@ function updateSortIndicators() {
     button.querySelector("span").textContent = active ? (state.direction === "asc" ? "↑" : "↓") : "";
   });
 }
+

@@ -1,6 +1,6 @@
-# T-Rexx Torrent Search + µTorrent Integration
+# T-Rexx Torrent Search + qBittorrent Integration
 
-This document describes a clean architecture for using **bitmagnet** and **Prowlarr** for torrent discovery while keeping **µTorrent Classic on Windows** as the download client.
+This document describes a clean architecture for using **bitmagnet** and **Prowlarr** for torrent discovery while keeping **qBittorrent on Windows** as the download client.
 
 > Use this setup only for torrents you are legally authorized to download or share, such as Linux distributions, public-domain media, open datasets, and your own files.
 
@@ -27,24 +27,24 @@ This document describes a clean architecture for using **bitmagnet** and **Prowl
                            Windows magnet handler
                                    │
                                    ▼
-                           µTorrent Classic
+                             qBittorrent
 ```
 
 ## Why this design
 
-Prowlarr is useful as a centralized indexer manager and manual search interface. bitmagnet provides a self-hosted torrent metadata index, web UI, and API surface. µTorrent remains the local Windows client.
+Prowlarr is useful as a centralized indexer manager and manual search interface. bitmagnet provides a self-hosted torrent metadata index, web UI, and API surface. qBittorrent remains the local Windows client.
 
-The current Prowlarr source tree in this fork does not include a native `UTorrent` download-client implementation, so this design avoids maintaining a custom Prowlarr client plugin. Instead, Windows handles magnet links using the application registered for the `magnet:` protocol.
+The handoff stays client-neutral: Windows opens magnet links with the application registered for the `magnet:` protocol. qBittorrent is the recommended client for this setup, but the T-Rexx service does not store client credentials or call a client-specific API.
 
-## Phase 1 — Verify µTorrent magnet handling
+## Phase 1 — Verify qBittorrent magnet handling
 
-1. Open **µTorrent Classic** on Windows.
+1. Open **qBittorrent** on Windows.
 2. Open Windows **Settings → Apps → Default apps**.
 3. Search for the `MAGNET` protocol.
-4. Confirm that µTorrent is the default handler.
+4. Confirm that qBittorrent is the default handler.
 5. Test with a legal/public torrent magnet link.
 
-If Windows opens µTorrent when you click the magnet link, no helper application is required.
+If Windows opens qBittorrent when you click the magnet link, no helper application is required.
 
 ## Phase 2 — Run the complete local stack
 
@@ -75,24 +75,24 @@ Recommended local layout:
 ```text
 Prowlarr:   http://localhost:9696
 bitmagnet:  http://localhost:3333
-µTorrent:   Windows desktop application
+qBittorrent: Windows desktop application
 ```
 
-## Phase 4 — Search-to-µTorrent workflow
+## Phase 4 — Search-to-client workflow
 
 The simplest workflow is:
 
 1. Search Prowlarr or bitmagnet.
 2. Select a result.
 3. Open/copy its magnet URI.
-4. Let Windows hand the `magnet:` URI to µTorrent.
-5. Confirm the torrent in µTorrent before starting the transfer.
+4. Let Windows hand the `magnet:` URI to qBittorrent.
+5. Confirm the torrent in qBittorrent before starting the transfer.
 
-This keeps discovery and downloading separate and avoids storing µTorrent credentials inside the search services.
+This keeps discovery and downloading separate and avoids storing download-client credentials inside the search services.
 
 ## Phase 5 — T-Rexx Command integration
 
-The first T-Rexx Command search module now lives in [`integrations/trexx-search`](../integrations/trexx-search/README.md). It is a lightweight Go companion service with an embedded browser interface. It searches Prowlarr and bitmagnet concurrently, normalizes results, merges matching v1 info hashes, and keeps the final µTorrent handoff as an explicit click.
+The first T-Rexx Command search module now lives in [`integrations/trexx-search`](../integrations/trexx-search/README.md). It is a lightweight Go companion service with an embedded browser interface. It searches Prowlarr and bitmagnet concurrently, normalizes results, merges matching v1 info hashes, and keeps the final torrent-client handoff as an explicit click.
 
 Suggested fields:
 
@@ -113,11 +113,11 @@ Suggested UI actions:
 ```text
 [Search]
 [Copy Magnet]
-[Open in µTorrent]
+[Open in torrent client]
 [Open Source]
 ```
 
-The **Open in µTorrent** button should simply navigate to the magnet URI. On Windows, the registered magnet handler will launch µTorrent.
+The **Open in torrent client** button simply navigates to the magnet URI. On Windows, the registered magnet handler launches qBittorrent.
 
 ## Implemented API layer
 
@@ -130,11 +130,11 @@ GET /api/health
 
 The service merges and normalizes results, removes duplicates using the torrent info hash, and supports sorting by title, source, seeders, age, or size in the UI. If one source is temporarily unavailable, the other source can still return partial results with a visible warning.
 
-Do **not** automatically start downloads by default. Require the user to click **Open in µTorrent** so the final action stays explicit.
+Do **not** automatically start downloads by default. Require the user to click **Open in torrent client** so the final action stays explicit.
 
 ## Recommended build order
 
-1. Confirm Windows/µTorrent magnet handling.
+1. Confirm Windows/qBittorrent magnet handling.
 2. Bring up bitmagnet locally.
 3. Bring up Prowlarr locally.
 4. Verify searches independently.
@@ -149,9 +149,10 @@ For project documentation, create a NotebookLM notebook with these source groups
 
 - bitmagnet installation/configuration
 - Prowlarr indexer configuration
-- µTorrent/Windows magnet protocol notes
+- qBittorrent/Windows magnet protocol notes
 - Docker/networking notes
 - T-Rexx Command API/UI design
 - troubleshooting log
 
 That notebook can become the permanent research and operations manual for the project.
+
